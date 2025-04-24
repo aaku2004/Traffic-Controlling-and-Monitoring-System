@@ -1,0 +1,342 @@
+$regfile = "M16def.dat"
+$crystal = 11059200
+$framesize = 24
+$hwstack = 32
+$swstack = 8
+$baud = 9600
+
+Dim I As Integer
+Dim C As Integer
+Dim Z As Integer
+Config Lcdpin = Pin , E = Portc.4 , Rs = Portc.5 , Db4 = Portc.3 , Db5 = Portc.2 , Db6 = Portc.1 , Db7 = Portc.0
+
+Config Lcd = 16 * 2
+
+Dim Pos As Byte
+Dim A As String * 2 , Rcvd As String * 12
+Dim X As Integer
+Dim Y As Integer
+Config Serialin = Buffered , Size = 12
+
+
+Enable Interrupts
+      Cls
+
+   Config Portb = Output
+
+
+Config Pina.0 = Input
+Config Pina.1 = Input
+Config Pina.2 = Input
+Config Pina.3 = Input
+ Config Portb.0 = Output
+ Config Portb.1 = Output
+ Config Pina.0 = Input
+Config Portd.7 = Output
+Config Portb.2 = Output
+Config Portd.6 = Output
+
+
+Cursor Off
+Locate 1 , 3
+
+Lcd "PROJECT BY : "
+
+Wait 2
+Cls
+
+Locate 1 , 1
+Lcd "SMART"
+Wait 1
+Locate 2 , 1
+Lcd "AMBULANCE"
+Wait 2
+
+Cls
+Locate 1 , 3
+Lcd "Presented By"
+Wait 1
+
+Cls
+
+Locate 1 , 3
+Lcd "Aakanksha"
+Wait 1
+Locate 2 , 2
+Lcd "200346620042"
+Wait 2
+Cls
+Locate 1 , 3
+Lcd "Katha"
+Wait 1
+Locate 2 , 2
+Lcd "200346620080"
+Wait 2
+
+Cls
+Y = 0
+
+ Main:
+C = 0
+Z = 0
+
+Do
+'Set Portb.0
+'Reset Portb.1
+'Set Portb.2
+'Reset Portb.3
+'Set Portb.4
+'Reset Portb.5
+'Set Portb.6
+'Reset Portb.7
+
+ ' If Nainkey() Then
+'  C = 1
+'  End If
+  If Pina.0 = 0 Or Pina.1 = 0 Or Pina.2 = 0 Or Pina.3 = 0 Then
+   C = 1
+   End If
+
+
+
+ If C = 0 Then
+   Do
+   Reset Portb.0
+   Set Portb.1
+   Set Portb.2
+   Reset Portb.3
+   Set Portb.4
+   Reset Portb.5
+   Set Portb.6
+   Reset Portb.7
+   Cls
+   Lcd " AMBULANCE "
+   Lowerline
+   Lcd "NOT DETECTED"
+   If Pina.0 = 0 Or Pina.1 = 0 Or Pina.2 = 0 Or Pina.3 = 0 Then
+   C = 1
+   End If
+
+   Wait 2
+   Set Portb.0
+   Reset Portb.1
+   Reset Portb.2
+   Set Portb.3
+   Set Portb.4
+   Reset Portb.5
+   Set Portb.6
+   Reset Portb.7
+   Cls
+   Lcd " AMBULANCE "
+   Lowerline
+   Lcd "NOT DETECTED"
+   If Pina.0 = 0 Or Pina.1 = 0 Or Pina.2 = 0 Or Pina.3 = 0 Then
+   C = 1
+   End If
+   Wait 2
+   Set Portb.0
+   Reset Portb.1
+   Set Portb.2
+   Reset Portb.3
+   Reset Portb.4
+   Set Portb.5
+   Set Portb.6
+   Reset Portb.7
+   Cls
+   Lcd " AMBULANCE "
+   Lowerline
+   Lcd "NOT DETECTED"
+   If Pina.0 = 0 Or Pina.1 = 0 Or Pina.2 = 0 Or Pina.3 = 0 Then
+   C = 1
+   End If
+   Wait 2
+   Set Portb.0
+   Reset Portb.1
+   Set Portb.2
+   Reset Portb.3
+   Set Portb.4
+   Reset Portb.5
+   Reset Portb.6
+   Set Portb.7
+   Cls
+   Lcd " AMBULANCE "
+   Lowerline
+   Lcd "NOT DETECTED"
+   If Pina.0 = 0 Or Pina.1 = 0 Or Pina.2 = 0 Or Pina.3 = 0 Then
+   C = 1
+   End If
+   Wait 2
+   Loop Until C = 1
+ End If
+
+'Cls
+'Lcd " AMBULANCE "
+'Lowerline
+'Lcd "NOT DETECTED"
+'Waitms 300
+
+
+
+
+ Clear Serialin
+
+
+A = Waitkey()
+
+  Waitms 200
+
+
+
+For I = 0 To 11 Step 1
+
+
+A = Inkey()
+Rcvd = Rcvd + A
+
+
+
+
+Next
+  Gosub Rfid
+
+
+   Loop
+
+End
+
+
+
+Rfid:
+
+ Cls
+
+
+Lcd Rcvd
+Wait 1
+
+ Pos = Instr(rcvd , "2003D24E3A8")
+
+
+   If Pos > 0 Then
+
+   Cls
+   Lcd "USER : 1"
+   Lowerline
+   Lcd "ACCESS GRANTED"
+
+   Cls
+   Z = 1
+   Gosub Operation
+
+   End If
+
+    Pos = 0
+
+'*******
+
+
+ Pos = Instr(rcvd , "20044B8BB45")
+
+
+   If Pos > 0 Then
+
+   Cls
+   Lcd "USER : 2"
+   Lowerline
+   Lcd "ACCESS DENIED"
+   Set Portb.1
+   Wait 2
+   Reset Portb.1
+   Cls
+
+   End If
+
+
+
+
+
+   Rcvd = ""
+   A = ""
+   I = 0
+
+Cls
+
+   Return
+
+
+
+   Operation:
+   Do
+    Cls
+    Lcd "AMBULANCE"
+    Lowerline
+    Lcd "DETECTED"
+     Waitms 300
+
+
+
+  If Z = 1 And Pina.0 = 0 Then
+
+   Reset Portb.0
+   Set Portb.1
+   Set Portb.2
+   Reset Portb.3
+   Set Portb.4
+   Reset Portb.5
+   Set Portb.6
+   Reset Portb.7
+   Set Portd.7
+   Wait 10
+   Reset Portd.7
+
+    Goto Main
+   Elseif Z = 1 And Pina.1 = 0 Then
+
+   Set Portb.0
+   Reset Portb.1
+   Reset Portb.2
+   Set Portb.3
+   Set Portb.4
+   Reset Portb.5
+   Set Portb.6
+   Reset Portb.7
+   Set Portd.7
+   Wait 10
+   Reset Portd.7
+
+    Goto Main
+   Elseif Z = 1 And Pina.2 = 0 Then
+
+   Set Portb.0
+   Reset Portb.1
+   Set Portb.2
+   Reset Portb.3
+   Reset Portb.4
+   Set Portb.5
+   Set Portb.6
+   Reset Portb.7
+   Set Portd.7
+   Wait 10
+   Reset Portd.7
+
+     Goto Main
+   Elseif Z = 1 And Pina.3 = 0 Then
+
+
+   Set Portb.0
+   Reset Portb.1
+   Set Portb.2
+   Reset Portb.3
+   Set Portb.4
+   Reset Portb.5
+   Reset Portb.6
+   Set Portb.7
+   Set Portd.7
+   Wait 10
+   Reset Portd.7
+       Goto Main
+
+   End If
+
+Loop
+End
